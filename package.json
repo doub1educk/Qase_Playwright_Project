@@ -1,0 +1,30 @@
+{
+  "name": "qase_bdd",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/doub1educk/qase_bdd.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/doub1educk/qase_bdd/issues"
+  },
+  "homepage": "https://github.com/doub1educk/qase_bdd#readme",
+  "devDependencies": {
+    "@faker-js/faker": "^10.5.0",
+    "@playwright/test": "^1.61.1",
+    "@types/node": "^26.1.1",
+    "dotenv": "^17.4.2",
+    "playwright-bdd": "^9.2.0",
+    "tsx": "^4.23.1",
+    "typescript": "^7.0.2"
+  }
+}

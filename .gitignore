@@ -1,0 +1,16 @@
+*.local.env
+.features-gen/
+/test-file
+
+node_modules/
+
+# Playwright
+
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+/playwright/.auth/
+
+.DS_Store
+.idea/
