@@ -3,13 +3,21 @@ name: Playwright Tests
 on: 
   workflow_dispatch:
    inputs:
-    test_tag:
-      description: 'Test category'
+    test_type:
+      description: 'Test type'
       required: true
       type: choice
       options:
       - '@smoke'
       - '@regression'
+
+    test_scenario:
+      description: 'Scenario type (@positive or @negative)'
+      required: true
+      type: choice
+      options:
+        - '@positive'
+        - '@negative'
 jobs:
  tests:
   runs-on: ubuntu-latest
@@ -34,7 +42,7 @@ jobs:
      run: npx bddgen
     
    - name: run tests
-     run: npx playwright test --grep "${{github.event.inputs.test_tag }}" 
+     run: npx playwright test --grep "(?=.*${{ github.event.inputs.test_type }})(?=.*${{ github.event.inputs.test_scenario }})" 
      env: 
         BASE_URL:       ${{ secrets.QA_BASE_URL}}
         API_URL:        ${{ secrets.QA_API_URL}}
@@ -49,7 +57,7 @@ jobs:
       name: playwright-report
       path: playwright-report/
       retention-days: 7
-      
+
    - name: upload debug screenshot
      if: always()
      uses: actions/upload-artifact@v4
