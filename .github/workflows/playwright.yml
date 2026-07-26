@@ -2,14 +2,14 @@ name: Playwright Tests
 
 on: 
   workflow_dispatch:
-
-   test_tag:
-     description: 'Test category'
-     required: true
-     type: choice
-     options:
-     - '@smoke'
-     - '@regression'
+   inputs:
+    test_tag:
+      description: 'Test category'
+      required: true
+      type: choice
+      options:
+      - '@smoke'
+      - '@regression'
 jobs:
  tests:
   runs-on: ubuntu-latest
@@ -18,7 +18,7 @@ jobs:
    - name: checkout code
      uses: actions/checkout@v4
 
-   - name: setup node.job
+   - name: setup node.js
      uses: actions/setup-node@v4
      with:
       node-version: '18'
@@ -36,11 +36,11 @@ jobs:
    - name: run tests
      run: npx playwright test --grep "${{github.event.inputs.test_tag }}" 
      env: 
-        BASE_URL:       ${{ secrets.QA_BASE_URL'}}
-        API_URL:        ${{ secrets.QA_API_URL'}}
-        API_TOKEN:      ${{ secrets.QA_API_TOKEN'}}
-        LOGIN_EMAIL:    ${{ secrets.QA_LOGIN_EMAIL'}}
-        LOGIN_PASSWORD: ${{ secrets.QA_LOGIN_PASSWORD'}}
+        BASE_URL:       ${{ secrets.QA_BASE_URL}}
+        API_URL:        ${{ secrets.QA_API_URL}}
+        API_TOKEN:      ${{ secrets.QA_API_TOKEN}}
+        LOGIN_EMAIL:    ${{ secrets.QA_LOGIN_EMAIL}}
+        LOGIN_PASSWORD: ${{ secrets.QA_LOGIN_PASSWORD}}
    - name: upload artifacts
      if: always()
      uses: actions/upload-artifact@v4
