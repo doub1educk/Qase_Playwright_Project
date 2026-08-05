@@ -46,18 +46,8 @@ export class ProjectsPage{
         await this.createSuiteButton.click();
     }
 
-    async expectProjectVisible(projectCode: string) {
-    await expect(
-  this.page.getByRole('cell', { name: projectCode, exact: true }).getByRole('link')
-).toBeVisible();
-}
-
-
-    async checkSpecificProjectUrl(projectCode: string){
-        await expect(this.page).toHaveURL('/project/' + projectCode);
-    }
-
     async clickProjectsButtonInHeader(){
+
         await this.projectsButtonInHeader.click();
     }
 
@@ -79,10 +69,6 @@ export class ProjectsPage{
 
     async gotoSpecificProject(projectCode: string){
         await this.page.goto('/project/' + projectCode);
-    }
-
-    async checkSuiteVisible(title:string){
-        await expect(this.page.locator('span[id^="suite-tree-"]').getByText(title)).toBeVisible();
     }
 
     async gotoProjectPage(){

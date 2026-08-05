@@ -38,7 +38,7 @@ When('I click on the login button with incrorect credentials', async ({ page }) 
 
 Then('I should be on the projects page', async ({ page }) => {
     const loginPage = new LoginPage(page);
-    await loginPage.checkProjectsPageUrl();
+    await expect(loginPage.page).toHaveURL(/.*\/projects/);;
 });
 
 When('I enter wrong password', async ({ page }) => {
@@ -48,11 +48,11 @@ When('I enter wrong password', async ({ page }) => {
 
 Then('I should stay on the login page', async ({ page }) => {
     const loginPage = new LoginPage(page);
-    await loginPage.checkLoginPageUrl();
+    await expect(loginPage.page).toHaveURL('/login');
 });
 
 Then('I should see login error alert {string}', async ({ page }, text: string) => {
     const loginPage = new LoginPage(page);
-    await loginPage.checkLoginErrorAlert(text);
+    await expect(loginPage.loginErrorAlert).toHaveText(text)
     console.log('Error: 2 alerts, when we try to login with incorrect password');
 });

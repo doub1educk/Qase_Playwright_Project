@@ -6,25 +6,27 @@ import { randomSuiteTitle,randomTestCaseTitle } from '../utils/randomData';
 import { TestCasePage } from '../pages/testCasePage';
 import { createTestFile } from '../utils/randomFile';
 import type { Response } from '@playwright/test';
+import { TEST_CASE_FIELD_LABELS } from '../constants/testCaseFields';
+import{CONTEXT_KEYS} from '../constants/contextKeys';
 
 const { When, Then, Given } = createBdd(test);
 
 Given('suite has been creating via API',async ({apiClient, testContext}) => {
-    const projectCode = testContext.get<string>('projectCode');
+    const projectCode = testContext.get<string>(CONTEXT_KEYS.PROJECT_CODE);
     const suiteTitle = randomSuiteTitle();
     const suite = await apiClient.createSuite(projectCode, suiteTitle);
-    testContext.set('suiteId', suite.id);
-    testContext.set('suiteTitle', suiteTitle);
+    testContext.set(CONTEXT_KEYS.SUITE_ID, suite.id);
+    testContext.set(CONTEXT_KEYS.SUITE_TITLE, suiteTitle);
 })
 
 When('I open created suite', async ({ page, testContext }) => {
     const projectsPage = new ProjectsPage(page);
-    await projectsPage.clickOnSpecificSuite(testContext.get<string>('suiteTitle'));
+    await projectsPage.clickOnSpecificSuite(testContext.get<string>(CONTEXT_KEYS.SUITE_TITLE));
 });
 
 When('I click on dropdown menu', async ({ page,testContext }) => {
     const projectsPage = new ProjectsPage(page);
-    await projectsPage.clickOnTestSuiteDropdownMenu(testContext.get<string>('suiteTitle'));
+    await projectsPage.clickOnTestSuiteDropdownMenu(testContext.get<string>(CONTEXT_KEYS.SUITE_TITLE));
 })
 
 When('I click button to create new testCase', async ({ page }) => {
@@ -35,22 +37,22 @@ When('I click button to create new testCase', async ({ page }) => {
 When('I enter a random title of testCase', async ({ page, testContext }) => {
     const testCasePage = new TestCasePage(page);
     const TestCaseTitle = randomTestCaseTitle();
-    testContext.set('testCaseTitle', TestCaseTitle);
+    testContext.set(CONTEXT_KEYS.TEST_CASE_TITLE, TestCaseTitle);
     await testCasePage.fillTestCaseTitle(TestCaseTitle);
 });
 
 When('I select status {string} and severity {string} and priority {string} and type {string} and layer {string} and is flaky {string} and behavior {string} and automation status {string}', async ({ page, testContext }, status, severity, priority, type, layer, isFlaky, behavior, automationStatus) => {
-    testContext.set('caseFields', {status, severity, priority, type, layer, isFlaky, behavior, automationStatus});
+    testContext.set(CONTEXT_KEYS.TEST_CASE_FIELDS, {status, severity, priority, type, layer, isFlaky, behavior, automationStatus});
 
     const testCasePage = new TestCasePage(page);
-    await testCasePage.selectFromDropDown('Status', status);
-    await testCasePage.selectFromDropDown('Severity', severity);
-    await testCasePage.selectFromDropDown('Priority', priority);
-    await testCasePage.selectFromDropDown('Type', type);
-    await testCasePage.selectFromDropDown('Layer', layer);
-    await testCasePage.selectFromDropDown('Is flaky', isFlaky);
-    await testCasePage.selectFromDropDown('Behavior', behavior);
-    await testCasePage.selectFromDropDown('Automation status', automationStatus);
+    await testCasePage.selectFromDropDown(TEST_CASE_FIELD_LABELS.STATUS, status);
+    await testCasePage.selectFromDropDown(TEST_CASE_FIELD_LABELS.SEVERITY, severity);
+    await testCasePage.selectFromDropDown(TEST_CASE_FIELD_LABELS.PRIORITY, priority);
+    await testCasePage.selectFromDropDown(TEST_CASE_FIELD_LABELS.TYPE, type);
+    await testCasePage.selectFromDropDown(TEST_CASE_FIELD_LABELS.LAYER, layer);
+    await testCasePage.selectFromDropDown(TEST_CASE_FIELD_LABELS.IS_FLAKY, isFlaky);
+    await testCasePage.selectFromDropDown(TEST_CASE_FIELD_LABELS.BEHAVIOR, behavior);
+    await testCasePage.selectFromDropDown(TEST_CASE_FIELD_LABELS.AUTOMATION_STATUS, automationStatus);
 });
 
 When('I enable checkbox {string}', async ({ page }, checkbox) => {
@@ -60,7 +62,7 @@ When('I enable checkbox {string}', async ({ page }, checkbox) => {
 
 When('I fill testCase steps:',async ({ page, testContext }, table:DataTable) => {
     const steps = table.hashes();
-    testContext.set('caseSteps', steps);
+    testContext.set(CONTEXT_KEYS.TEST_CASE_STEPS, steps);
 
     const testCasePage = new TestCasePage(page);
     const createdFilePaths: string[] = [];
@@ -89,18 +91,18 @@ When('I click button to save testCase', async ({ page,testContext }) => {
     testCasePage.waitForTestCaseDetailsResponse(),
     testCasePage.clickSaveTestCaseButton()
     ]);
-        testContext.set('testCaseLoadResponse', testCaseLoadResponse);
+        testContext.set(CONTEXT_KEYS.TEST_CASE_LOAD_RESPONSE, testCaseLoadResponse);
 });
 
 Then('testCase details should match according to API', async ({ apiClient, testContext }) => {
-    const response = testContext.get<Response>('testCaseLoadResponse');
+    const response = testContext.get<Response>(CONTEXT_KEYS.TEST_CASE_LOAD_RESPONSE);
     expect(response.status()).toBe(200);
 
     const body = await response.json();
     const caseData = body.case;
 
-    const expectedTitle = testContext.get<String>('testCaseTitle');
-    const expectedSteps = testContext.get<Array<{action: string, expected_result: string, data: string}>>('caseSteps');
+    const expectedTitle = testContext.get<String>(CONTEXT_KEYS.TEST_CASE_TITLE);
+    const expectedSteps = testContext.get<Array<{action: string, expected_result: string, data: string}>>(CONTEXT_KEYS.TEST_CASE_STEPS);
 
     expect(caseData.title).toEqual(expectedTitle);
     expect(caseData.steps).toHaveLength(expectedSteps.length);
@@ -120,7 +122,7 @@ When('I enable checkbox Shown as list', async ({ page }) => {
 Then('Test case steps should be correct in UI', async ({ page, testContext }) => {
     const testCasePage = new TestCasePage(page);
 
-    const steps = testContext.get<Array<{action: string, expected_result: string, data: string}> >('caseSteps');
+    const steps = testContext.get<Array<{action: string, expected_result: string, data: string}> >(CONTEXT_KEYS.TEST_CASE_STEPS);
     for(const step of steps){
         await testCasePage.checkStepVisible(step.action, step.expected_result);
     }
@@ -134,15 +136,15 @@ When('I come to property page of testCase', async ({ page }) => {
 Then('Test case details should be correct in UI', async ({ page, testContext }) => {
     const testCasePage = new TestCasePage(page);
 
-    const fields = testContext.get<{status: string, severity: string, priority: string, type: string, layer: string, isFlaky: string, behavior: string}>('caseFields');
+    const fields = testContext.get<{status: string, severity: string, priority: string, type: string, layer: string, isFlaky: string, behavior: string}>(CONTEXT_KEYS.TEST_CASE_FIELDS);
 
-    await testCasePage.expectFieldValue('Status', fields.status);
-    await testCasePage.expectFieldValue('Priority', fields.priority);
-    await testCasePage.expectFieldValue('Severity', fields.severity);
-    await testCasePage.expectFieldValue('Type', fields.type);
-    await testCasePage.expectFieldValue('Behavior', fields.behavior);
-    await testCasePage.expectFieldValue('Is flaky', fields.isFlaky);
-    await testCasePage.expectFieldValue('Layer', fields.layer);
-    await testCasePage.expectCheckboxChecked('To be automated');
+    await testCasePage.expectFieldValue(TEST_CASE_FIELD_LABELS.STATUS, fields.status);
+    await testCasePage.expectFieldValue(TEST_CASE_FIELD_LABELS.PRIORITY, fields.priority);
+    await testCasePage.expectFieldValue(TEST_CASE_FIELD_LABELS.SEVERITY, fields.severity);
+    await testCasePage.expectFieldValue(TEST_CASE_FIELD_LABELS.TYPE, fields.type);
+    await testCasePage.expectFieldValue(TEST_CASE_FIELD_LABELS.BEHAVIOR, fields.behavior);
+    await testCasePage.expectFieldValue(TEST_CASE_FIELD_LABELS.IS_FLAKY, fields.isFlaky);
+    await testCasePage.expectFieldValue(TEST_CASE_FIELD_LABELS.LAYER, fields.layer);
+    await testCasePage.expectCheckboxChecked(TEST_CASE_FIELD_LABELS.TO_BE_AUTOMATED);
 
     });

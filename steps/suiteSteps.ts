@@ -3,6 +3,7 @@ import { ProjectsPage } from '../pages/projectsPage';
 import { randomProjectTitle, randomProjectCode,randomSuiteTitle } from '../utils/randomData';
 import { test } from '../fixtures/fixtures';
 import { expect } from '@playwright/test';
+import{CONTEXT_KEYS} from '../constants/contextKeys';
 
 const { When, Then, Given } = createBdd(test);
 
@@ -12,13 +13,13 @@ Given('project has been creating via API',async ({apiClient, testContext}) => {
 
     await apiClient.createProject(title, code);
 
-    testContext.set('projectCode', code);
-    testContext.set('projectTitle', title);
+    testContext.set(CONTEXT_KEYS.PROJECT_CODE, code);
+    testContext.set(CONTEXT_KEYS.PROJECT_TITLE, title);
 });
 
 When('I open the created project', async ({page, testContext}) => {
     const projectsPage = new ProjectsPage(page);
-    await projectsPage.gotoSpecificProject(testContext.get<string>('projectCode'));
+    await projectsPage.gotoSpecificProject(testContext.get<string>(CONTEXT_KEYS.PROJECT_CODE));
 });
 
 When('I click button to creating a new suite', async ({ page }) => {
@@ -28,10 +29,10 @@ When('I click button to creating a new suite', async ({ page }) => {
 
 When('I enter a title of suite', async ({ page, testContext }) => {
     const suiteTitle = randomSuiteTitle();
-    testContext.set('suiteTitle', suiteTitle);
+    testContext.set(CONTEXT_KEYS.SUITE_TITLE, suiteTitle);
 
     const projectsPage = new ProjectsPage(page);
-    await projectsPage.fillSuiteNameInput(testContext.get<string>('suiteTitle'));
+    await projectsPage.fillSuiteNameInput(testContext.get<string>(CONTEXT_KEYS.SUITE_TITLE));
 });
 
 When('I click button to submit creating testCase', async ({ page }) => {
@@ -41,12 +42,13 @@ When('I click button to submit creating testCase', async ({ page }) => {
 
 Then('Suite should be appears in the suites list', async ({ page, testContext }) => {
     const projectsPage = new ProjectsPage(page);
-    await projectsPage.checkSuiteVisible(testContext.get<string>('suiteTitle'));
+    await expect(projectsPage.page.locator('span[id^="suite-tree-"]').getByText(testContext.get<string>(CONTEXT_KEYS.SUITE_TITLE))).toBeVisible();
+    
 });
 
 Then('Suite should exist according to API', async ({ apiClient, testContext }) => {
-    const projectCode = testContext.get<string>('projectCode');
-    const suiteTitle = testContext.get<string>('suiteTitle');
+    const projectCode = testContext.get<string>(CONTEXT_KEYS.PROJECT_CODE);
+    const suiteTitle = testContext.get<string>(CONTEXT_KEYS.SUITE_TITLE);
 
     const suites = await apiClient.getSuites(projectCode);
     const createdSuite = suites.find((s: any) => s.title === suiteTitle);

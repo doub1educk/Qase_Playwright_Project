@@ -33,24 +33,10 @@ export class LoginPage{
         await this.loginButton.click();
     }
 
-    async checkLoginErrorAlert(text: string){
-        await expect(this.loginErrorAlert).toHaveText(text);
-    }
-
-    async checkLoginPageUrl(){
-        await expect(this.page).toHaveURL('/login');
-    }
-
     waitForProjectListLoad(){
         return this.page.waitForResponse(
             res => res.url().includes('/v1/projects/list') && res.request().method() === 'POST'
         );
     }
-
-    async checkProjectsPageUrl(){
-        await expect(this.page).toHaveURL(/.*\/projects/);
-    }
-
-    
 
 }
